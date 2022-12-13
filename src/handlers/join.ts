@@ -18,6 +18,8 @@ export const joinHandler = (data: any, socket: Socket) => {
       console.timeStamp(newRoomId);
     }
     states[roomId ?? newRoomId] = state;
+
+    socket.data.roomId = roomId ?? newRoomId;
     socket.emit("joined", {
       roomID: roomId ?? newRoomId,
       userID: userId,

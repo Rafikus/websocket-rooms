@@ -18,31 +18,8 @@ io.on("connection", (socket) => {
   console.timeStamp("Connected :: " + socket.client);
   socket.on("join", (data) => joinHandler(data, socket));
 
-  if (!host) {
-    host = socket;
-    socket.on("message", (data) => {
-      try {
-        const msg = JSON.parse(data.toString()) as Message;
-        if (msg.type === MessageType.STORE_UPDATE) {
-          currentStore = msg.data;
-        }
-      } catch {
-        console.log("err");
-      }
-    });
-  }
-
-  socket.on("message", (data) => {
-    console.timeStamp("Message from client :: " + data);
-    try {
-      const message = JSON.parse(data.toString()) as Message;
-      const type = message.type;
-      if (type !== MessageType.STORE_UPDATE) {
-        socket.broadcast.emit(data);
-      }
-    } catch {
-      console.log("err");
-    }
+  socket.on("action", (data) => {
+    socket.to(socket.data.roomId).emit("action", data);
   });
 });
 
