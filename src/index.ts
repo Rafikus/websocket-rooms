@@ -1,20 +1,21 @@
 import express from "express";
 import * as http from "http";
-import { Server, WebSocket } from "ws";
+import { Server, Socket } from "socket.io";
+import { Message, MessageType } from "./types";
 
 const app = express();
 const server = http.createServer(app);
-const webSocketServer = new Server({ server });
-let host: WebSocket | null = null;
+const io = new Server(server);
+let host: Socket | null = null;
 let currentStore = "";
 
-webSocketServer.on("connection", (webSocket) => {
+io.on("connection", (socket) => {
   if (!host) {
-    host = webSocket;
-    webSocket.on("message", (data) => {
+    host = socket;
+    socket.on("message", (data) => {
       try {
-        const msg = JSON.parse(data.toString());
-        if (msg.type === "store_update") {
+        const msg = JSON.parse(data.toString()) as Message;
+        if (msg.type === MessageType.STORE_UPDATE) {
           currentStore = JSON.stringify(msg.data);
         }
       } catch {
@@ -23,17 +24,13 @@ webSocketServer.on("connection", (webSocket) => {
     });
   }
 
-  webSocket.on("message", (data) => {
+  socket.on("message", (data) => {
     try {
+      const message = JSON.parse(data.toString()) as Message;
       console.log("Message from client :: " + data);
-      const type = JSON.parse(data.toString()).type;
-      const str = data.toString();
-      if (type !== "store_update") {
-        webSocketServer.clients.forEach((client) => {
-          if (client !== webSocket) {
-            client.send(str);
-          }
-        });
+      const type = message.type;
+      if (type !== MessageType.STORE_UPDATE) {
+        socket.broadcast.emit(data);
       }
     } catch {
       console.log("err");

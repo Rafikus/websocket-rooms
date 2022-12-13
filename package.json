@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "express": "^4.17.3",
+    "socket.io": "^4.5.4",
     "ws": "^8.5.0"
   },
   "devDependencies": {
