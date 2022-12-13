@@ -1,7 +1,6 @@
 import express from "express";
 import * as http from "http";
-import { Server, Socket } from "socket.io";
-import { Message, MessageType } from "./types";
+import { Server } from "socket.io";
 import { joinHandler } from "./handlers/join";
 
 const app = express();
@@ -11,15 +10,20 @@ const io = new Server(server, {
     origin: "*",
   },
 });
-let host: Socket | null = null;
-let currentStore = "";
 
 io.on("connection", (socket) => {
-  console.timeStamp("Connected :: " + socket.client);
-  socket.on("join", (data) => joinHandler(data, socket));
+  console.log("Connected :: " + socket.client);
+  socket.on("join", (data) => joinHandler(data, socket, io));
 
   socket.on("action", (data) => {
     socket.to(socket.data.roomId).emit("action", data);
+  });
+
+  socket.on("mousemove", (coordinates) => {
+    socket.to(socket.data.roomId).emit("mousemove", {
+      coordinates,
+      userId: socket.data.userId,
+    });
   });
 });
 
