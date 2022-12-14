@@ -7,6 +7,7 @@ export const joinHandler = async (data: any, socket: Socket, io: any) => {
   const { state, username } = data;
   const roomId = "abc";
   socket.data.username = username;
+  socket.data.userId = socket.id;
 
   try {
     const newRoomId = socket.id.slice(0, 4);
@@ -22,8 +23,8 @@ export const joinHandler = async (data: any, socket: Socket, io: any) => {
 
     socket.data.roomId = room;
     socket.emit("joined", {
-      roomID: room,
-      userID: socket.id,
+      roomId: room,
+      userId: socket.data.userId,
       state: roomId ? states[roomId] : undefined,
     });
     console.log(

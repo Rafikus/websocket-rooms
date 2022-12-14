@@ -15,7 +15,9 @@ io.on("connection", (socket) => {
   socket.on("join", (data) => joinHandler(data, socket, io));
 
   socket.on("action", (data) => {
-    socket.to(socket.data.roomId).emit("action", data);
+    socket
+      .to(socket.data.roomId)
+      .emit("action", { ...data, isBroadcasted: true });
   });
 
   socket.on("mousemove", (coordinates) => {
