@@ -12,7 +12,6 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("Connected :: " + socket.client);
   socket.on("join", (data) => joinHandler(data, socket, io));
 
   socket.on("action", (data) => {
@@ -23,16 +22,16 @@ io.on("connection", (socket) => {
     socket.to(socket.data.roomId).emit("mousemove", {
       coordinates,
       userId: socket.data.userId,
+      username: socket.data.username,
     });
   });
 });
 
 io.of("/").adapter.on("create-room", (room) => {
-  console.log(`room ${room} was created`);
-});
-
-io.of("/").adapter.on("join-room", (room, id) => {
-  console.log(`socket ${id} has joined room ${room}`);
+  console.log(
+    `\x1b[${31 + (room.charCodeAt(0) % 7)}m%s\x1b[0m`,
+    `Room ${room} was created`
+  );
 });
 
 server.listen(process.env.PORT || 8080, () => {
